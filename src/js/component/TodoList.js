@@ -1,4 +1,6 @@
 import React, { Fragment, useState } from "react";
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
 
 export const TodoList = props => {
 	const [tasks, setTasks] = useState([]);
@@ -16,6 +18,13 @@ export const TodoList = props => {
 			}
 		}
 	};
+	let deleteLine = index => {
+		/* console.log(list); */
+		const newTodos = [...tasks];
+		newTodos.splice(index, 1);
+		setTasks(newTodos);
+	};
+
 	return (
 		<Fragment>
 			<form>
@@ -31,7 +40,18 @@ export const TodoList = props => {
 			</form>
 			<ul>
 				{tasks.map((task, index) => {
-					return <li key={index}>{task}</li>;
+					return (
+						<li key={index}>
+							{task}
+							<IconButton
+								aria-label="Delete"
+								onClick={() => {
+									deleteLine(index);
+								}}>
+								<DeleteIcon />
+							</IconButton>
+						</li>
+					);
 				})}
 			</ul>
 		</Fragment>
