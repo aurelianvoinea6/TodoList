@@ -1,100 +1,122 @@
 import React, { Fragment, useState, useEffect } from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
+import PropTypes from "prop-types";
 
 export const TodoList = props => {
-	const [tasks, setTasks] = useState([]);
-	const [initialValue, setInitialValue] = useState(null);
+	const [value, setValue] = useState("");
+	const [tasksApiArray, setTasksApiArray] = useState([]);
+	const [myListElement, setMyListElement] = useState(null);
 
-	let newTask = event => {
-		let myInput = document.querySelector("#taskInput");
-		let newTask = event.target.value;
+	const isTaskDone = indexToCrossOut => {
+		setTasksApiArray(
+			tasksApiArray.map((task, index) => {
+				if (index == indexToCrossOut) {
+					task.done = !task.done;
+				}
+				return task;
+			})
+		);
+	};
 
-		if (event.keyCode == 13) {
-			event.preventDefault();
-			if (newTask) {
-				setTasks(tasks => [...tasks, { label: newTask, done: false }]);
-				myInput.value = "";
-			}
+	fetch("https://assets.breatheco.de/apis/fake/todos/user/aurelian", {
+		method: "PUT",
+		body: JSON.stringify(tasksApiArray),
+		headers: {
+			"Content-Type": "application/json"
 		}
-	};
-	let deleteLine = index => {
-		/* console.log(list); */
-		let newTodos = [...tasks];
-		newTodos.splice(index, 1);
-		setTasks(newTodos);
-	};
+	})
+		.then(response => response.json())
+		.then(answerUpload => {
+			console.log("Success: ", JSON.stringify(answerUpload));
+		});
+
 	useEffect(() => {
 		fetch("https://assets.breatheco.de/apis/fake/todos/user/aurelian", {
 			method: "GET"
 		})
 			.then(response => {
 				if (!response.ok) {
-					throw Error(response.statusText);
+					throw Error(response.status);
 				}
-				return response.json(); //devuelve un objeto
+				return response.json();
 			})
 			.then(responseAsJson => {
-				console.log(responseAsJson, "aaaaaaa");
-				responseAsJson.map(task => {
-					setTasks(tasks => [...tasks, task]);
-				});
+				setTasksApiArray(responseAsJson);
 			})
 			.catch(error => {
-				//manejo de errores
-				console.log(error);
+				console.log("Error status: ", error);
 			});
 	}, []);
-	console.log(tasks, "cccccccc");
 
 	useEffect(
 		() => {
 			fetch("https://assets.breatheco.de/apis/fake/todos/user/aurelian", {
 				method: "PUT",
-				body: JSON.stringify(tasks),
+				body: JSON.stringify(tasksApiArray),
 				headers: {
 					"Content-Type": "application/json"
 				}
 			})
-				.then(response => {
-					return response.json(); //devuelve un objeto
+				.then(response => response.json())
+				.then(answerUpload => {
+					console.log("Success: ", JSON.stringify(answerUpload));
 				})
 				.catch(error => {
-					//manejo de errores
-					console.log(error);
+					console.log("Error status: ", error);
 				});
+
+			setMyListElement(
+				tasksApiArray.map((task, index) => {
+					let crossClass = "list-element";
+					if (task.done) {
+						crossClass += " crossedText";
+					}
+					return (
+						<li key={index} className={crossClass}>
+							{task.label}
+							<button
+								id="crossOutButton"
+								className="visible-or-not-button"
+								onClick={() => {
+									isTaskDone(index);
+								}}>
+								<i className="fas fa-check-square" />
+							</button>
+						</li>
+					);
+				})
+			);
 		},
-		[tasks]
+		[tasksApiArray]
 	);
 
 	return (
 		<Fragment>
-			<form>
-				<input
-					id="taskInput"
-					type="text"
-					placeholder="Add Task"
-					onKeyPress={() => {
-						newTask(event);
-					}}
-				/>
-			</form>
-			<ul>
-				{tasks.map((task, index) => {
-					return (
-						<li key={index}>
-							{task.label}
-							<IconButton
-								aria-label="Delete"
-								onClick={() => {
-									deleteLine(index);
-								}}>
-								<DeleteIcon />
-							</IconButton>
-						</li>
-					);
-				})}
-			</ul>
+			<section>
+				<form
+					onSubmit={event => {
+						event.preventDefault();
+						if (value != "") {
+							setTasksApiArray([
+								...tasksApiArray,
+								{ label: value, done: false }
+							]);
+							setValue("");
+						}
+					}}>
+					<input
+						type="text"
+						placeholder="New task"
+						value={value}
+						onChange={event => setValue(event.target.value)}
+					/>
+				</form>
+				<ul className="taskList">{myListElement}</ul>
+				<footer>
+					<p>{tasksApiArray.length} Task counter</p>
+				</footer>
+			</section>
 		</Fragment>
 	);
 };
