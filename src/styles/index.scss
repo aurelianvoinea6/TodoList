@@ -1,13 +1,39 @@
 @import "~bootstrap/scss/bootstrap.scss";
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,900&display=swap');
 
-/* 
+body{
+    display: flex;
+    justify-content: center;
+    background-image: url("https://images.pexels.com/photos/3299/postit-scrabble-to-do.jpg?cs=srgb&dl=pexels-breakingpic-3299.jpg&fm=jpg");
+    background-size: cover;
+    background-position: center;
+    width: 100vw;
+    height: 100vh;
+    font-family: "Roboto";  
+}
 
-    You can write your own styles here...
+.to-do-list {
+    margin-top: 20rem;
+    width: 30rem;
+    border-radius: 0.5rem;
+    background-color: gray
+}    
     
-    
-    ...Or you can use the import command to include 
-    other sylesheets into your bunde as well, e.j:
-    
-    import 'relative/path/to/stylesheet.scss';
+header {
+    text-align: center;
+}
 
-*/
+h1{
+    margin: 2vh 0;
+    font-size: 5vw;
+    color: rgba(22, 22, 22, 0.979);
+}
+
+.list-word{
+    font-size: 7vw; 
+}
+    
+input:focus {
+    outline: none;
+    border: none;
+}
